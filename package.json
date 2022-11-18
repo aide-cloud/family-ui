@@ -1,0 +1,39 @@
+{
+  "name": "@hubiao/family-ui",
+  "version": "1.0.1",
+  "main": "dist/hubiao-family-ui.cjs.js",
+  "module": "dist/hubiao-family-ui.esm.js",
+  "types": "dist/index.d.ts",
+  "repository": "git@github.com:aide-cloud/family-ui.git",
+  "author": "胡标 <biao.hu@baishan.com>",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "typings"
+  ],
+  "peerDependencies": {
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "prepare": "install-peers",
+    "build": "rollpkg build",
+    "watch": "rollpkg watch",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.0",
+    "@types/node": "^16.11.34",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.3",
+    "install-peers-cli": "^2.2.0",
+    "rollpkg": "^0.5.7",
+    "typescript": "^4.6.4",
+    "web-vitals": "^2.1.4"
+  }
+}

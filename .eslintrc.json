@@ -1,0 +1,16 @@
+{
+  "extends": ["./node_modules/rollpkg/configs/eslint"],
+  "rules": {
+    "quotes": ["warn", "single"],
+    "semi": ["warn", "never"],
+    "no-console": "warn",
+    "no-debugger": "warn",
+    "no-alert": "warn",
+    "camelcase": "warn",
+    "@typescript-eslint/no-empty-interface": "warn",
+    "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off"
+  }
+}

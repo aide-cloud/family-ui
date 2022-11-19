@@ -1,13 +1,40 @@
+import { Avatar, ConfigProvider, Space } from 'antd'
+import { Design } from '@aide/family-ui'
 import React from 'react'
-import { Text } from '@hubiao/family-ui'
+import { ItemType } from 'antd/es/menu/hooks/useItems'
+import { UserOutlined } from '@ant-design/icons'
 
 type Props = {}
 
+const items: ItemType[] = [
+  { label: '菜单项一', key: 'item-1', icon: <UserOutlined /> },
+  { label: '菜单项二', key: 'item-2', icon: <UserOutlined /> },
+  {
+    label: '子菜单',
+    key: 'submenu',
+    icon: <UserOutlined />,
+    children: [{ label: '子菜单项', key: 'submenu-item-1' }],
+  },
+]
+
+const HeaderRight = () => {
+  return (
+    <Space size='small'>
+      <Avatar icon={<UserOutlined />} />
+    </Space>
+  )
+}
+
 const App: React.FC = (props: Props) => {
   return (
-    <div>
-      <Text name='App' />
-    </div>
+    <Design
+      openDesignSetting
+      menuItem={items}
+      logo={'xxx'}
+      headerRight={<HeaderRight />}
+    >
+      my layout
+    </Design>
   )
 }
 

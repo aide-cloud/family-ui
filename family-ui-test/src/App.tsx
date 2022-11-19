@@ -1,21 +1,45 @@
 import { Avatar, Space } from 'antd'
-import { Design } from '@hubiao/family-ui'
+import { Design, SiderMenuType } from '@hubiao/family-ui'
 import React from 'react'
-import { ItemType } from 'antd/es/menu/hooks/useItems'
 import { UserOutlined } from '@ant-design/icons'
+import { HashRouter, useLocation, useNavigate } from 'react-router-dom'
 
 type Props = {}
 
-const items: ItemType[] = [
-  { label: '菜单项一', key: 'item-1', icon: <UserOutlined /> },
-  { label: '菜单项二', key: 'item-2', icon: <UserOutlined /> },
+const items = [
+  {
+    label: '菜单项一',
+    icon: <UserOutlined />,
+    key: '/',
+    component: <div>home</div>,
+  },
+  {
+    label: '菜单项二',
+    icon: <UserOutlined />,
+    component: <div>test</div>,
+    key: '/test',
+  },
   {
     label: '子菜单',
-    key: 'submenu',
     icon: <UserOutlined />,
-    children: [{ label: '子菜单项', key: 'submenu-item-1' }],
+    children: [
+      {
+        label: '子菜单项',
+        key: '/test1',
+        component: <div>child test</div>,
+        children: [
+          {
+            label: 'test11',
+            key: '/test11',
+            component: <div>child test 11</div>,
+          },
+        ],
+      },
+    ],
+    key: '/submenu',
+    // component: <div>子菜单</div>,
   },
-]
+] as SiderMenuType[]
 
 const HeaderRight = () => {
   return (

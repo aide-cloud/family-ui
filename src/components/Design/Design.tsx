@@ -9,18 +9,32 @@ import {
   Menu,
   Row,
   Space,
-  Switch,
   theme,
 } from 'antd'
 import { RightOutlined, LeftOutlined, SettingOutlined } from '@ant-design/icons'
-import React from 'react'
-import { ItemType } from 'antd/es/menu/hooks/useItems'
-import { MappingAlgorithm, ThemeConfig } from 'antd/es/config-provider/context'
+import React, { Suspense, useEffect } from 'react'
+import { ItemType, MenuItemType } from 'antd/es/menu/hooks/useItems'
+import { ThemeConfig } from 'antd/es/config-provider/context'
+import {
+  HashRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 const { darkAlgorithm, compactAlgorithm, defaultAlgorithm } = theme
+
+export type SiderMenuType = MenuItemType | RouteType
+
+type RouteType = {
+  key: string
+  component: React.ReactNode
+  children?: RouteType[]
+}
 
 type DesignProps = {
   openDesignSetting?: boolean
-  menuItem?: ItemType[]
+  menuItem?: SiderMenuType[]
   children?: React.ReactNode
   header?: React.ReactNode
   logo?: React.ReactNode
@@ -31,6 +45,31 @@ type DesignProps = {
 type DefaultHeaderProps = {
   logo?: React.ReactNode
   children?: React.ReactNode
+}
+
+// 根据items生成路由
+const getRoutes = (items: RouteType[], parentRoutePath: string) => {
+  let routes: React.ReactNode[] = []
+  items.forEach((item) => {
+    // 去除字符串第一个/字符
+    const path = item.key.replace(/^\//, '')
+    const routePath = `${parentRoutePath}/${path}`
+
+    if (item.children && item.children.length > 0) {
+      routes.push(
+        ...getRoutes(item.children, routePath).map((route) => {
+          return route
+        })
+      )
+    }
+    if (item.component) {
+      routes.push(
+        <Route key={routePath} path={routePath} element={item.component} />
+      )
+    }
+  })
+
+  return routes
 }
 
 /**
@@ -235,6 +274,51 @@ const DesignSelector = (props: DesignSelectorProps) => {
   )
 }
 
+type MenuProps = {
+  menuItems: ItemType[]
+}
+
+/**
+ * 构造菜单
+ * @param param  MenuProps 参数
+ * @returns 菜单ReactNode
+ */
+const ThisMenu: React.FC<MenuProps> = ({ menuItems }) => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const [selectedKeys, setSelectedKeys] = React.useState<string[]>([])
+  const [openKeys, setOpenKeys] = React.useState<string[]>([])
+
+  useEffect(() => {
+    let menuKeys = location.pathname.split('/')
+    setOpenKeys([])
+    if (menuKeys.length > 2) {
+      setOpenKeys([
+        ...menuKeys.map((item) => '/' + item).slice(0, menuKeys.length - 1),
+      ])
+    }
+
+    setSelectedKeys(['/' + menuKeys[menuKeys.length - 1]])
+  }, [location.pathname])
+
+  return (
+    <Menu
+      style={{ height: '100%' }}
+      mode='inline'
+      items={menuItems}
+      selectedKeys={selectedKeys}
+      openKeys={openKeys}
+      onSelect={({ keyPath }) => {
+        navigate(keyPath.reverse().join(''))
+      }}
+      onOpenChange={(openKeys) => {
+        setOpenKeys(openKeys)
+      }}
+    />
+  )
+}
+
 /**
  * Design组件，用于构造页面基础布局
  * @param props Design组件参数
@@ -270,41 +354,53 @@ export const Design = (props: DesignProps) => {
     )
   }
 
-  const [theme, setTheme] = React.useState<ThemeConfig>({
+  const [myTheme, setTheme] = React.useState<ThemeConfig>({
+    inherit: true,
     algorithm: [darkAlgorithm, defaultAlgorithm],
-    token: {
-      colorPrimary: '#1890ff',
-    },
   })
 
   return (
-    <ConfigProvider theme={theme}>
-      <DesignSelector
-        open={openDesignSetting}
-        setTheme={setTheme}
-        themecfg={theme}
-      />
-      <Layout style={{ height: '100vh', width: '100vw' }}>
-        {buildHeader()}
-        <Layout>
-          <Layout.Sider
-            collapsed={collapsed}
-            style={{ position: 'relative', background: 'none' }}
-          >
-            <Menu style={{ height: '100%' }} mode='inline' items={menuItem} />
-            <Button
-              type='primary'
-              style={{ width: '100%', position: 'absolute', bottom: 0 }}
-              onClick={() => setCollapsed(!collapsed)}
+    <ConfigProvider theme={myTheme}>
+      <ConfigProvider>
+        <HashRouter>
+          <Suspense fallback={<div>Loading...</div>}>
+            <DesignSelector
+              open={openDesignSetting}
+              setTheme={setTheme}
+              themecfg={myTheme}
+            />
+            <Layout
+              style={{
+                height: '100vh',
+                width: '100vw',
+              }}
             >
-              {collapsed ? <RightOutlined /> : <LeftOutlined />}
-            </Button>
-          </Layout.Sider>
-          <Layout>
-            <Layout.Content>{children}</Layout.Content>
-          </Layout>
-        </Layout>
-      </Layout>
+              {buildHeader()}
+              <Layout>
+                <Layout.Sider
+                  collapsed={collapsed}
+                  style={{ position: 'relative', background: 'none' }}
+                >
+                  <ThisMenu menuItems={menuItem as ItemType[]} />
+                  <Button
+                    type='primary'
+                    style={{ width: '100%', position: 'absolute', bottom: 0 }}
+                    onClick={() => setCollapsed(!collapsed)}
+                  >
+                    {collapsed ? <RightOutlined /> : <LeftOutlined />}
+                  </Button>
+                </Layout.Sider>
+                <Layout>
+                  <Layout.Content>
+                    {children}
+                    <Routes>{getRoutes(menuItem as RouteType[], '')}</Routes>
+                  </Layout.Content>
+                </Layout>
+              </Layout>
+            </Layout>
+          </Suspense>
+        </HashRouter>
+      </ConfigProvider>
     </ConfigProvider>
   )
 }

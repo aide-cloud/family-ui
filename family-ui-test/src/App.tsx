@@ -1,5 +1,5 @@
-import { Avatar, ConfigProvider, Space } from 'antd'
-import { Design } from '@aide/family-ui'
+import { Avatar, Space } from 'antd'
+import { Design } from '@hubiao/family-ui'
 import React from 'react'
 import { ItemType } from 'antd/es/menu/hooks/useItems'
 import { UserOutlined } from '@ant-design/icons'

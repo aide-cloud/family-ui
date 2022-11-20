@@ -1277,11 +1277,6 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@hubiao/family-ui@^1.0.1":
-  version "1.0.2"
-  resolved "https://registry.npmmirror.com/@hubiao/family-ui/-/family-ui-1.0.2.tgz#6cabeba916bf07e32596276bd540de421ca34c2f"
-  integrity sha512-NgOBiEMhdbOMmBgqcPOWkkQcMZV+jo1Cy37TiO/g/5M1pDMGhnOsOF7vlEHKdJPPypSj+mNLLuhf4XJ+gDGsOA==
-
 "@humanwhocodes/config-array@^0.11.6":
   version "0.11.7"
   resolved "https://registry.npmmirror.com/@humanwhocodes/config-array/-/config-array-0.11.7.tgz#38aec044c6c828f6ed51d5d7ae3d9b9faf6dbb0f"

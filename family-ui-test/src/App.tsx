@@ -2,7 +2,7 @@ import { Avatar, Space } from 'antd'
 import { Design, SiderMenuType } from '@hubiao/family-ui'
 import React from 'react'
 import { UserOutlined } from '@ant-design/icons'
-import { HashRouter, useLocation, useNavigate } from 'react-router-dom'
+import { Header } from 'antd/es/layout/layout'
 
 type Props = {}
 
@@ -56,6 +56,7 @@ const App: React.FC = (props: Props) => {
       menuItem={items}
       logo={'xxx'}
       headerRight={<HeaderRight />}
+      header={<Header>xxxx</Header>}
     >
       my layout
     </Design>

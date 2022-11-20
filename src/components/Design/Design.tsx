@@ -303,19 +303,28 @@ const ThisMenu: React.FC<MenuProps> = ({ menuItems }) => {
   }, [location.pathname])
 
   return (
-    <Menu
-      style={{ height: '100%' }}
-      mode='inline'
-      items={menuItems}
-      selectedKeys={selectedKeys}
-      openKeys={openKeys}
-      onSelect={({ keyPath }) => {
-        navigate(keyPath.reverse().join(''))
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+        },
+        inherit: true,
       }}
-      onOpenChange={(openKeys) => {
-        setOpenKeys(openKeys)
-      }}
-    />
+    >
+      <Menu
+        style={{ height: '100%' }}
+        mode='inline'
+        items={menuItems}
+        selectedKeys={selectedKeys}
+        openKeys={openKeys}
+        onSelect={({ keyPath }) => {
+          navigate(keyPath.reverse().join(''))
+        }}
+        onOpenChange={(openKeys) => {
+          setOpenKeys(openKeys)
+        }}
+      />
+    </ConfigProvider>
   )
 }
 
@@ -338,13 +347,7 @@ export const Design = (props: DesignProps) => {
 
   const buildHeader = () => {
     return (
-      <Layout.Header
-        style={
-          !!headerStyle
-            ? { ...headerStyle }
-            : { background: 'none', padding: 0, margin: '0 8px' }
-        }
-      >
+      <Layout.Header style={{ ...headerStyle }}>
         {!!header ? (
           header
         ) : (

@@ -1,0 +1,6 @@
+.app {
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+}

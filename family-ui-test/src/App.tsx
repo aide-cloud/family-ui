@@ -1,9 +1,8 @@
-import { Avatar, Space } from 'antd'
+import { Avatar, ConfigProvider, Layout, Space, theme } from 'antd'
 import { Design, SiderMenuType } from '@hubiao/family-ui'
-import React from 'react'
+import React, { useState } from 'react'
 import { UserOutlined } from '@ant-design/icons'
-import { Header } from 'antd/es/layout/layout'
-
+import './app.css'
 type Props = {}
 
 const items = [
@@ -56,7 +55,7 @@ const App: React.FC = (props: Props) => {
       menuItem={items}
       logo={'xxx'}
       headerRight={<HeaderRight />}
-      header={<Header>xxxx</Header>}
+      // header={<div>1234</div>}
     >
       my layout
     </Design>

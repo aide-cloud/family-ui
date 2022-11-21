@@ -5,6 +5,7 @@ import {
   ConfigProvider,
   Drawer,
   FloatButton,
+  Input,
   Layout,
   Menu,
   Row,
@@ -12,7 +13,13 @@ import {
   theme,
 } from 'antd'
 import { RightOutlined, LeftOutlined, SettingOutlined } from '@ant-design/icons'
-import React, { Suspense, useEffect } from 'react'
+import React, {
+  createContext,
+  Suspense,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { ItemType, MenuItemType } from 'antd/es/menu/hooks/useItems'
 import { ThemeConfig } from 'antd/es/config-provider/context'
 import {
@@ -22,7 +29,13 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom'
-const { darkAlgorithm, compactAlgorithm, defaultAlgorithm } = theme
+import type { Theme } from '@ant-design/cssinjs'
+import type { SeedToken, MapToken } from 'antd/es/theme/interface'
+// import { SketchPicker } from 'react-color'
+// import './Design.css'
+const { darkAlgorithm, compactAlgorithm, defaultAlgorithm, useToken } = theme
+
+const countContext = createContext({} as DesignProps)
 
 export type SiderMenuType = MenuItemType | RouteType
 
@@ -45,6 +58,54 @@ type DesignProps = {
 type DefaultHeaderProps = {
   logo?: React.ReactNode
   children?: React.ReactNode
+}
+
+const DesignLayout = () => {
+  const { token, theme, hashId } = useToken()
+  const [collapsed, setCollapsed] = React.useState(false)
+  const props = useContext(countContext)
+  const { headerStyle, header, logo, headerRight, menuItem, children } = props
+
+  return (
+    <Layout
+      style={{
+        height: '100vh',
+        width: '100vw',
+        color: token.colorText,
+      }}
+    >
+      <Layout.Header style={{ ...headerStyle, background: token.colorBgBase }}>
+        {!!header ? (
+          header
+        ) : (
+          <DefaultHeader logo={logo}>{headerRight}</DefaultHeader>
+        )}
+      </Layout.Header>
+      <Layout>
+        <Layout.Sider
+          collapsed={collapsed}
+          style={{ position: 'relative' }}
+          className='site-layout-background'
+          // theme='light'
+        >
+          <ThisMenu menuItems={menuItem as ItemType[]} />
+          <Button
+            type='primary'
+            style={{ width: '100%', position: 'absolute', bottom: 0 }}
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? <RightOutlined /> : <LeftOutlined />}
+          </Button>
+        </Layout.Sider>
+        <Layout>
+          <Layout.Content>
+            {children}
+            <Routes>{getRoutes(menuItem as RouteType[], '')}</Routes>
+          </Layout.Content>
+        </Layout>
+      </Layout>
+    </Layout>
+  )
 }
 
 // 根据items生成路由
@@ -92,6 +153,7 @@ type DesignSelectorProps = {
   open?: boolean
   setTheme?: (theme: ThemeConfig) => void
   themecfg?: ThemeConfig
+  myTheme?: ThemeConfig
 }
 
 type primaryColorType = {
@@ -111,7 +173,7 @@ type ThemeType = {
  * @returns 设计选择器ReactNode
  */
 const DesignSelector = (props: DesignSelectorProps) => {
-  const { open, setTheme, themecfg } = props
+  const { open, setTheme, themecfg, myTheme } = props
   const [selectedTheme, setSelectedTheme] = React.useState<number>(0)
 
   const [openDesignSelect, setOpenDesignSelect] = React.useState(false)
@@ -186,6 +248,9 @@ const DesignSelector = (props: DesignSelectorProps) => {
     },
   ]
 
+  const [myColorPrimary, setMyColorPrimary] = React.useState<string>('')
+
+  const { token, theme } = useToken()
   return (
     <>
       {open && (
@@ -215,16 +280,16 @@ const DesignSelector = (props: DesignSelectorProps) => {
                         border:
                           selectedTheme == index
                             ? `2px ${
-                                themecfg?.token?.colorPrimary || '#1890ff'
+                                myTheme?.token?.colorPrimary || '#1890ff'
                               } solid`
                             : '',
                       }}
                       src={item.url}
                       onClick={() => {
-                        if (setTheme && themecfg) {
-                          setSelectedTheme(index)
+                        setSelectedTheme(index)
+                        if (setTheme && myTheme) {
                           setTheme({
-                            ...themecfg,
+                            ...myTheme,
                             algorithm: item?.value?.algorithm,
                           })
                         }
@@ -235,36 +300,91 @@ const DesignSelector = (props: DesignSelectorProps) => {
               </Space>
 
               <Space direction='horizontal' wrap>
+                <Input
+                  placeholder={token.colorPrimary}
+                  // value={token.colorPrimary}
+                  onChange={(
+                    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+                  ) => {
+                    console.log(e.target.value)
+                    let colorPrimary = e.target.value
+                    setTheme &&
+                      setTheme({
+                        ...myTheme,
+                        token: {
+                          ...myTheme?.token,
+                          colorPrimary: colorPrimary,
+                        },
+                      })
+                  }}
+                />
                 {primaryColorList.map(
                   (color: primaryColorType, index: number) => {
                     return (
-                      <ConfigProvider
-                        key={index}
-                        theme={{
-                          token: {
-                            colorPrimary: color.color,
-                          },
+                      <div
+                        style={{
+                          height: 50,
+                          width: 50,
+                          borderRadius: '50%',
+                          textAlign: 'center',
+                          lineHeight: 50,
+                          background: color.color,
                         }}
-                      >
-                        <Button
-                          type='primary'
-                          onClick={() =>
-                            setTheme &&
+                        onClick={() => {
+                          setTheme &&
                             setTheme({
-                              ...themecfg,
+                              ...myTheme,
                               token: {
-                                ...themecfg?.token,
+                                ...myTheme?.token,
                                 colorPrimary: color.color,
                               },
                             })
-                          }
-                        >
-                          {color.name}
-                        </Button>
-                      </ConfigProvider>
+
+                          // console.log(1, theme)
+                        }}
+                        key={index}
+                      ></div>
                     )
                   }
                 )}
+                <div
+                  style={{
+                    height: 50,
+                    width: 50,
+                    borderRadius: '50%',
+                    textAlign: 'center',
+                    lineHeight: 50,
+                    background:
+                      ' conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
+                  }}
+                  onClick={() => {
+                    return (
+                      setTheme &&
+                      setTheme({
+                        ...myTheme,
+                        token: {
+                          ...myTheme?.token,
+                          colorPrimary: '#c00',
+                        },
+                      })
+                    )
+                  }}
+                ></div>
+                {/* <SketchPicker
+                  presetColors={['#1890ff', '#25b864', '#ff6f00']}
+                  color={myColorPrimary}
+                  onChange={({ hex }) => {
+                    setMyColorPrimary(hex)
+                    setTheme &&
+                      setTheme({
+                        ...myTheme,
+                        token: {
+                          ...myTheme?.token,
+                          colorPrimary: myColorPrimary,
+                        },
+                      })
+                  }}
+                /> */}
               </Space>
             </Space>
           </Drawer>
@@ -303,28 +423,20 @@ const ThisMenu: React.FC<MenuProps> = ({ menuItems }) => {
   }, [location.pathname])
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          borderRadius: 0,
-        },
-        inherit: true,
+    <Menu
+      style={{ height: '100%' }}
+      mode='inline'
+      items={menuItems}
+      selectedKeys={selectedKeys}
+      openKeys={openKeys}
+      theme='light'
+      onSelect={({ keyPath }) => {
+        navigate(keyPath.reverse().join(''))
       }}
-    >
-      <Menu
-        style={{ height: '100%' }}
-        mode='inline'
-        items={menuItems}
-        selectedKeys={selectedKeys}
-        openKeys={openKeys}
-        onSelect={({ keyPath }) => {
-          navigate(keyPath.reverse().join(''))
-        }}
-        onOpenChange={(openKeys) => {
-          setOpenKeys(openKeys)
-        }}
-      />
-    </ConfigProvider>
+      onOpenChange={(openKeys) => {
+        setOpenKeys(openKeys)
+      }}
+    />
   )
 }
 
@@ -334,76 +446,26 @@ const ThisMenu: React.FC<MenuProps> = ({ menuItems }) => {
  * @returns 返回Design组件ReactNode
  */
 export const Design = (props: DesignProps) => {
-  const [collapsed, setCollapsed] = React.useState(false)
-  const {
-    menuItem,
-    children,
-    header,
-    headerStyle,
-    headerRight,
-    logo,
-    openDesignSetting,
-  } = props
-
-  const buildHeader = () => {
-    return (
-      <Layout.Header style={{ ...headerStyle }}>
-        {!!header ? (
-          header
-        ) : (
-          <DefaultHeader logo={logo}>{headerRight}</DefaultHeader>
-        )}
-      </Layout.Header>
-    )
-  }
-
+  const { openDesignSetting } = props
   const [myTheme, setTheme] = React.useState<ThemeConfig>({
-    inherit: true,
-    algorithm: [darkAlgorithm, defaultAlgorithm],
+    algorithm: [defaultAlgorithm],
   })
 
   return (
     <ConfigProvider theme={myTheme}>
-      <ConfigProvider>
-        <HashRouter>
-          <Suspense fallback={<div>Loading...</div>}>
-            <DesignSelector
-              open={openDesignSetting}
-              setTheme={setTheme}
-              themecfg={myTheme}
-            />
-            <Layout
-              style={{
-                height: '100vh',
-                width: '100vw',
-              }}
-            >
-              {buildHeader()}
-              <Layout>
-                <Layout.Sider
-                  collapsed={collapsed}
-                  style={{ position: 'relative', background: 'none' }}
-                >
-                  <ThisMenu menuItems={menuItem as ItemType[]} />
-                  <Button
-                    type='primary'
-                    style={{ width: '100%', position: 'absolute', bottom: 0 }}
-                    onClick={() => setCollapsed(!collapsed)}
-                  >
-                    {collapsed ? <RightOutlined /> : <LeftOutlined />}
-                  </Button>
-                </Layout.Sider>
-                <Layout>
-                  <Layout.Content>
-                    {children}
-                    <Routes>{getRoutes(menuItem as RouteType[], '')}</Routes>
-                  </Layout.Content>
-                </Layout>
-              </Layout>
-            </Layout>
-          </Suspense>
-        </HashRouter>
-      </ConfigProvider>
+      <HashRouter>
+        <Suspense fallback={<div>Loading...</div>}>
+          <DesignSelector
+            open={openDesignSetting}
+            setTheme={setTheme}
+            themecfg={myTheme}
+            myTheme={myTheme}
+          />
+          <countContext.Provider value={props}>
+            <DesignLayout />
+          </countContext.Provider>
+        </Suspense>
+      </HashRouter>
     </ConfigProvider>
   )
 }

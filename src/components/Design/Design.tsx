@@ -6,11 +6,15 @@ import {
   Drawer,
   FloatButton,
   Input,
+  InputNumber,
   Layout,
   Menu,
+  Popover,
   Row,
+  Select,
   Space,
   theme,
+  Tooltip,
 } from 'antd'
 import { RightOutlined, LeftOutlined, SettingOutlined } from '@ant-design/icons'
 import React, {
@@ -29,13 +33,11 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom'
-import type { Theme } from '@ant-design/cssinjs'
-import type { SeedToken, MapToken } from 'antd/es/theme/interface'
-// import { SketchPicker } from 'react-color'
-// import './Design.css'
+import { HexColorPicker } from 'react-colorful'
+
 const { darkAlgorithm, compactAlgorithm, defaultAlgorithm, useToken } = theme
 
-const countContext = createContext({} as DesignProps)
+const DesignContext = createContext({} as DesignProps)
 
 export type SiderMenuType = MenuItemType | RouteType
 
@@ -61,11 +63,10 @@ type DefaultHeaderProps = {
 }
 
 const DesignLayout = () => {
-  const { token, theme, hashId } = useToken()
+  const { token } = useToken()
   const [collapsed, setCollapsed] = React.useState(false)
-  const props = useContext(countContext)
+  const props = useContext(DesignContext)
   const { headerStyle, header, logo, headerRight, menuItem, children } = props
-
   return (
     <Layout
       style={{
@@ -153,7 +154,6 @@ type DesignSelectorProps = {
   open?: boolean
   setTheme?: (theme: ThemeConfig) => void
   themecfg?: ThemeConfig
-  myTheme?: ThemeConfig
 }
 
 type primaryColorType = {
@@ -167,13 +167,17 @@ type ThemeType = {
   value: ThemeConfig
 }
 
+type presetColorsType = {
+  HEX: '#1890ff'
+}
+
 /**
  * 构造设计选择器
  * @param props 设计选择器参数
  * @returns 设计选择器ReactNode
  */
 const DesignSelector = (props: DesignSelectorProps) => {
-  const { open, setTheme, themecfg, myTheme } = props
+  const { open, setTheme, themecfg } = props
   const [selectedTheme, setSelectedTheme] = React.useState<number>(0)
 
   const [openDesignSelect, setOpenDesignSelect] = React.useState(false)
@@ -248,9 +252,60 @@ const DesignSelector = (props: DesignSelectorProps) => {
     },
   ]
 
-  const [myColorPrimary, setMyColorPrimary] = React.useState<string>('')
+  const { token } = useToken()
+  const [myColorPrimary, setMyColorPrimary] = React.useState<string>(
+    token.colorPrimary
+  )
+  const setMyTheme = (color: string) => {
+    setMyColorPrimary(color)
+    setTheme &&
+      setTheme({
+        ...themecfg,
+        token: {
+          ...themecfg?.token,
+          colorPrimary: color,
+        },
+      })
+  }
 
-  const { token, theme } = useToken()
+  const content = (
+    <div>
+      <HexColorPicker
+        color={myColorPrimary}
+        onChange={(color) => setMyTheme(color)}
+      />
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          marginTop: 10,
+          width: 200,
+        }}
+      >
+        {primaryColorList.map((color: primaryColorType, index: number) => {
+          return (
+            <Tooltip placement='bottom' title={color.name}>
+              <button
+                key={index}
+                style={{
+                  backgroundColor: color.color,
+                  margin: 4,
+                  width: 20,
+                  height: 20,
+                  border: 'none',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  boxShadow:
+                    ' 0 2px 3px -1px rgb(0 0 0 / 20%), inset 0 0 0 1px rgb(0 0 0 / 9%)',
+                }}
+                onClick={() => setMyTheme(color.color)}
+              />
+            </Tooltip>
+          )
+        })}
+      </div>
+    </div>
+  )
   return (
     <>
       {open && (
@@ -269,122 +324,102 @@ const DesignSelector = (props: DesignSelectorProps) => {
             onClose={handSlectDesign}
           >
             <Space direction='vertical'>
+              <div>模式：</div>
               <Space direction='horizontal' wrap>
                 {themeList.map((item, index) => {
                   return (
-                    <Avatar
-                      size={120}
-                      shape='square'
-                      key={index}
-                      style={{
-                        border:
-                          selectedTheme == index
-                            ? `2px ${
-                                myTheme?.token?.colorPrimary || '#1890ff'
-                              } solid`
-                            : '',
-                      }}
-                      src={item.url}
-                      onClick={() => {
-                        setSelectedTheme(index)
-                        if (setTheme && myTheme) {
-                          setTheme({
-                            ...myTheme,
-                            algorithm: item?.value?.algorithm,
-                          })
-                        }
-                      }}
-                    />
+                    <div style={{ marginRight: 20 }}>
+                      <div
+                        key={index}
+                        style={{
+                          background: `url(${item.url})`,
+                          width: 100,
+                          height: 100,
+                          borderRadius: token.borderRadius,
+                          border:
+                            selectedTheme == index
+                              ? `2px ${
+                                  themecfg?.token?.colorPrimary || '#1890ff'
+                                } solid`
+                              : '',
+                        }}
+                        onClick={() => {
+                          setSelectedTheme(index)
+                          if (setTheme && themecfg) {
+                            setTheme({
+                              ...themecfg,
+                              algorithm: item?.value?.algorithm,
+                            })
+                          }
+                        }}
+                      />
+                      <div style={{ textAlign: 'center', marginTop: 4 }}>
+                        {item.name}
+                      </div>
+                    </div>
                   )
                 })}
               </Space>
-
+              <Row>
+                <Col span={8} style={{ lineHeight: 2, color: token.colorText }}>
+                  主题颜色：
+                </Col>
+                <Col span={14}>
+                  <Input
+                    placeholder={token.colorPrimary}
+                    value={myColorPrimary}
+                    onChange={(
+                      e: React.ChangeEvent<
+                        HTMLInputElement | HTMLTextAreaElement
+                      >
+                    ) => {
+                      let colorPrimary = e.target.value
+                      setMyTheme(colorPrimary)
+                    }}
+                  />
+                </Col>
+              </Row>
               <Space direction='horizontal' wrap>
-                <Input
-                  placeholder={token.colorPrimary}
-                  // value={token.colorPrimary}
-                  onChange={(
-                    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-                  ) => {
-                    console.log(e.target.value)
-                    let colorPrimary = e.target.value
-                    setTheme &&
-                      setTheme({
-                        ...myTheme,
-                        token: {
-                          ...myTheme?.token,
-                          colorPrimary: colorPrimary,
-                        },
-                      })
-                  }}
-                />
                 {primaryColorList.map(
                   (color: primaryColorType, index: number) => {
                     return (
-                      <div
-                        style={{
-                          height: 50,
-                          width: 50,
-                          borderRadius: '50%',
-                          textAlign: 'center',
-                          lineHeight: 50,
-                          background: color.color,
-                        }}
-                        onClick={() => {
-                          setTheme &&
-                            setTheme({
-                              ...myTheme,
-                              token: {
-                                ...myTheme?.token,
-                                colorPrimary: color.color,
-                              },
-                            })
-
-                          // console.log(1, theme)
-                        }}
-                        key={index}
-                      ></div>
+                      <Tooltip placement='bottom' title={color.name}>
+                        <button
+                          style={{
+                            height: 30,
+                            width: 30,
+                            borderRadius: '50%',
+                            background: color.color,
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => setMyTheme(color.color)}
+                          key={index}
+                        />
+                      </Tooltip>
                     )
                   }
                 )}
-                <div
-                  style={{
-                    height: 50,
-                    width: 50,
-                    borderRadius: '50%',
-                    textAlign: 'center',
-                    lineHeight: 50,
-                    background:
-                      ' conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
-                  }}
-                  onClick={() => {
-                    return (
-                      setTheme &&
-                      setTheme({
-                        ...myTheme,
-                        token: {
-                          ...myTheme?.token,
-                          colorPrimary: '#c00',
-                        },
-                      })
-                    )
-                  }}
-                ></div>
-                {/* <SketchPicker
-                  presetColors={['#1890ff', '#25b864', '#ff6f00']}
-                  color={myColorPrimary}
-                  onChange={({ hex }) => {
-                    setMyColorPrimary(hex)
-                    setTheme &&
-                      setTheme({
-                        ...myTheme,
-                        token: {
-                          ...myTheme?.token,
-                          colorPrimary: myColorPrimary,
-                        },
-                      })
-                  }}
-                /> */}
+                <Popover
+                  placement='top'
+                  title='主题'
+                  content={content}
+                  trigger='click'
+                >
+                  <Tooltip placement='bottom' title='更多'>
+                    <button
+                      style={{
+                        height: 30,
+                        width: 30,
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        background:
+                          ' conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
+                        border: 'none',
+                      }}
+                    />
+                  </Tooltip>
+                </Popover>
               </Space>
             </Space>
           </Drawer>
@@ -459,11 +494,10 @@ export const Design = (props: DesignProps) => {
             open={openDesignSetting}
             setTheme={setTheme}
             themecfg={myTheme}
-            myTheme={myTheme}
           />
-          <countContext.Provider value={props}>
+          <DesignContext.Provider value={props}>
             <DesignLayout />
-          </countContext.Provider>
+          </DesignContext.Provider>
         </Suspense>
       </HashRouter>
     </ConfigProvider>

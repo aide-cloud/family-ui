@@ -2,6 +2,7 @@ import { Avatar, ConfigProvider, Layout, Space, theme } from 'antd'
 import { Design, SiderMenuType } from '@hubiao/family-ui'
 import React, { useState } from 'react'
 import { UserOutlined } from '@ant-design/icons'
+
 import './app.css'
 type Props = {}
 
@@ -50,15 +51,17 @@ const HeaderRight = () => {
 
 const App: React.FC = (props: Props) => {
   return (
-    <Design
-      openDesignSetting
-      menuItem={items}
-      logo={'xxx'}
-      headerRight={<HeaderRight />}
-      // header={<div>1234</div>}
-    >
-      my layout
-    </Design>
+    <div>
+      <Design
+        openDesignSetting
+        menuItem={items}
+        logo={'xxx'}
+        headerRight={<HeaderRight />}
+        // header={<div>1234</div>}
+      >
+        my layout
+      </Design>
+    </div>
   )
 }
 

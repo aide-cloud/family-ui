@@ -111,7 +111,7 @@ const DesignLayout = () => {
 
 // 根据items生成路由
 const getRoutes = (items: RouteType[], parentRoutePath: string) => {
-  let routes: React.ReactNode[] = []
+  const routes: React.ReactNode[] = []
   items.forEach((item) => {
     // 去除字符串第一个/字符
     const path = item.key.replace(/^\//, '')
@@ -284,9 +284,8 @@ const DesignSelector = (props: DesignSelectorProps) => {
       >
         {primaryColorList.map((color: primaryColorType, index: number) => {
           return (
-            <Tooltip placement='bottom' title={color.name}>
+            <Tooltip placement='bottom' title={color.name} key={index}>
               <button
-                key={index}
                 style={{
                   backgroundColor: color.color,
                   margin: 4,
@@ -328,9 +327,8 @@ const DesignSelector = (props: DesignSelectorProps) => {
               <Space direction='horizontal' wrap>
                 {themeList.map((item, index) => {
                   return (
-                    <div style={{ marginRight: 20 }}>
-                      <div
-                        key={index}
+                    <div style={{ marginRight: 20 }} key={index}>
+                      <button
                         style={{
                           background: `url(${item.url})`,
                           width: 100,
@@ -373,7 +371,7 @@ const DesignSelector = (props: DesignSelectorProps) => {
                         HTMLInputElement | HTMLTextAreaElement
                       >
                     ) => {
-                      let colorPrimary = e.target.value
+                      const colorPrimary = e.target.value
                       setMyTheme(colorPrimary)
                     }}
                   />
@@ -383,7 +381,11 @@ const DesignSelector = (props: DesignSelectorProps) => {
                 {primaryColorList.map(
                   (color: primaryColorType, index: number) => {
                     return (
-                      <Tooltip placement='bottom' title={color.name}>
+                      <Tooltip
+                        placement='bottom'
+                        title={color.name}
+                        key={index}
+                      >
                         <button
                           style={{
                             height: 30,
@@ -394,7 +396,6 @@ const DesignSelector = (props: DesignSelectorProps) => {
                             cursor: 'pointer',
                           }}
                           onClick={() => setMyTheme(color.color)}
-                          key={index}
                         />
                       </Tooltip>
                     )
@@ -446,7 +447,7 @@ const ThisMenu: React.FC<MenuProps> = ({ menuItems }) => {
   const [openKeys, setOpenKeys] = React.useState<string[]>([])
 
   useEffect(() => {
-    let menuKeys = location.pathname.split('/')
+    const menuKeys = location.pathname.split('/')
     setOpenKeys([])
     if (menuKeys.length > 2) {
       setOpenKeys([

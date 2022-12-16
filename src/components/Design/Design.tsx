@@ -1,29 +1,20 @@
 import {
-  Avatar,
   Button,
   Col,
   ConfigProvider,
   Drawer,
   FloatButton,
   Input,
-  InputNumber,
   Layout,
   Menu,
   Popover,
   Row,
-  Select,
   Space,
   theme,
   Tooltip,
 } from 'antd'
 import { RightOutlined, LeftOutlined, SettingOutlined } from '@ant-design/icons'
-import React, {
-  createContext,
-  Suspense,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import React, { createContext, Suspense, useContext, useEffect } from 'react'
 import { ItemType, MenuItemType } from 'antd/es/menu/hooks/useItems'
 import { ThemeConfig } from 'antd/es/config-provider/context'
 import {
@@ -85,9 +76,8 @@ const DesignLayout = () => {
       <Layout>
         <Layout.Sider
           collapsed={collapsed}
-          style={{ position: 'relative' }}
+          style={{ position: 'relative', background: token.colorBgBase }}
           className='site-layout-background'
-          // theme='light'
         >
           <ThisMenu menuItems={menuItem as ItemType[]} />
           <Button

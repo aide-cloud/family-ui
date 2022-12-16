@@ -1,6 +1,6 @@
 {
   "name": "@hubiao/family-ui",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/hubiao-family-ui.cjs.js",
   "module": "dist/hubiao-family-ui.esm.js",
   "types": "dist/index.d.ts",

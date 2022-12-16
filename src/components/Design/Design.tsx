@@ -14,7 +14,13 @@ import {
   Tooltip,
 } from 'antd'
 import { RightOutlined, LeftOutlined, SettingOutlined } from '@ant-design/icons'
-import React, { createContext, Suspense, useContext, useEffect } from 'react'
+import React, {
+  createContext,
+  ReactNode,
+  Suspense,
+  useContext,
+  useEffect,
+} from 'react'
 import { ItemType, MenuItemType } from 'antd/es/menu/hooks/useItems'
 import { ThemeConfig } from 'antd/es/config-provider/context'
 import {
@@ -30,12 +36,13 @@ const { darkAlgorithm, compactAlgorithm, defaultAlgorithm, useToken } = theme
 
 const DesignContext = createContext({} as DesignProps)
 
-export type SiderMenuType = MenuItemType | RouteType
-
-type RouteType = {
+// export type SiderMenuType = MenuItemType | RouteType
+export type SiderMenuType = {
   key: string
-  component: React.ReactNode
-  children?: RouteType[]
+  label: string
+  icon?: React.ReactNode
+  component?: React.ReactNode
+  children?: SiderMenuType[]
 }
 
 type DesignProps = {
@@ -46,6 +53,7 @@ type DesignProps = {
   logo?: React.ReactNode
   headerRight?: React.ReactNode
   headerStyle?: React.CSSProperties
+  loading?: ReactNode
 }
 
 type DefaultHeaderProps = {
@@ -53,16 +61,32 @@ type DefaultHeaderProps = {
   children?: React.ReactNode
 }
 
+export interface DesignLayoutProps {
+  loading?: ReactNode
+}
+
+const DefaultLoading = () => {
+  return <>loading</>
+}
+
 const DesignLayout = () => {
   const { token } = useToken()
   const [collapsed, setCollapsed] = React.useState(false)
   const props = useContext(DesignContext)
-  const { headerStyle, header, logo, headerRight, menuItem, children } = props
+  const {
+    headerStyle,
+    header,
+    logo,
+    headerRight,
+    menuItem,
+    children,
+    loading = <DefaultLoading />,
+  } = props
   return (
     <Layout
       style={{
-        height: '100vh',
-        width: '100vw',
+        height: '100%',
+        width: '100%',
         color: token.colorText,
       }}
     >
@@ -79,7 +103,7 @@ const DesignLayout = () => {
           style={{ position: 'relative', background: token.colorBgBase }}
           className='site-layout-background'
         >
-          <ThisMenu menuItems={menuItem as ItemType[]} />
+          <ThisMenu menuItems={menuItem || []} />
           <Button
             type='primary'
             style={{ width: '100%', position: 'absolute', bottom: 0 }}
@@ -90,8 +114,10 @@ const DesignLayout = () => {
         </Layout.Sider>
         <Layout>
           <Layout.Content>
-            {children}
-            <Routes>{getRoutes(menuItem as RouteType[], '')}</Routes>
+            <Suspense fallback={loading}>
+              {children}
+              <Routes>{getRoutes(menuItem || [], '')}</Routes>
+            </Suspense>
           </Layout.Content>
         </Layout>
       </Layout>
@@ -100,7 +126,7 @@ const DesignLayout = () => {
 }
 
 // 根据items生成路由
-const getRoutes = (items: RouteType[], parentRoutePath: string) => {
+const getRoutes = (items: SiderMenuType[], parentRoutePath: string) => {
   const routes: React.ReactNode[] = []
   items.forEach((item) => {
     // 去除字符串第一个/字符
@@ -481,16 +507,14 @@ export const Design = (props: DesignProps) => {
   return (
     <ConfigProvider theme={myTheme}>
       <HashRouter>
-        <Suspense fallback={<div>Loading...</div>}>
-          <DesignSelector
-            open={openDesignSetting}
-            setTheme={setTheme}
-            themecfg={myTheme}
-          />
-          <DesignContext.Provider value={props}>
-            <DesignLayout />
-          </DesignContext.Provider>
-        </Suspense>
+        <DesignSelector
+          open={openDesignSetting}
+          setTheme={setTheme}
+          themecfg={myTheme}
+        />
+        <DesignContext.Provider value={props}>
+          <DesignLayout />
+        </DesignContext.Provider>
       </HashRouter>
     </ConfigProvider>
   )

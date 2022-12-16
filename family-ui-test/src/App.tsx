@@ -1,17 +1,17 @@
 import { Avatar, ConfigProvider, Layout, Space, theme } from 'antd'
 import { Design, SiderMenuType } from '@hubiao/family-ui'
-import React, { useState } from 'react'
+import React, { useState, lazy } from 'react'
 import { UserOutlined } from '@ant-design/icons'
 
 import './app.css'
 type Props = {}
 
-const items = [
+const items: SiderMenuType[] = [
   {
     label: '菜单项一',
     icon: <UserOutlined />,
     key: '/',
-    component: <div>home</div>,
+    component: React.createElement(lazy(() => import('./pages/home'))),
   },
   {
     label: '菜单项二',
@@ -39,7 +39,7 @@ const items = [
     key: '/submenu',
     // component: <div>子菜单</div>,
   },
-] as SiderMenuType[]
+]
 
 const HeaderRight = () => {
   return (
@@ -55,10 +55,12 @@ const App: React.FC = (props: Props) => {
       <Design
         openDesignSetting
         menuItem={items}
-        logo={'xxx'}
+        logo={'xx'}
         headerRight={<HeaderRight />}
+        loading={false}
         // header={<div>1234</div>}
       >
+        <p>xxx</p>
         my layout
       </Design>
     </div>

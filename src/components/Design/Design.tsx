@@ -321,6 +321,7 @@ const DesignSelector = (props: DesignSelectorProps) => {
             placement='right'
             width={300}
             onClose={handSlectDesign}
+            style={{ color: token.colorText }}
           >
             <Space direction='vertical'>
               <div>模式：</div>
@@ -359,7 +360,7 @@ const DesignSelector = (props: DesignSelectorProps) => {
                 })}
               </Space>
               <Row>
-                <Col span={8} style={{ lineHeight: 2, color: token.colorText }}>
+                <Col span={8} style={{ lineHeight: 2 }}>
                   主题颜色：
                 </Col>
                 <Col span={14}>
